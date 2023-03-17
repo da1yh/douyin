@@ -6,5 +6,6 @@ import (
 
 func main() {
 	r := gin.Default()
+	initRouter(r)
 	r.Run()
 }
