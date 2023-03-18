@@ -18,3 +18,31 @@ func TestFeed(t *testing.T) {
 		video.Value("cover_url").String().NotEmpty()
 	}
 }
+
+func TestUserAction(t *testing.T) {
+	e := newExpect(t)
+	userName, userPassword := "s1mple", "7355608"
+	registerResp := e.POST("/douyin/user/register/").WithQuery("username", userName).WithQuery("password", userPassword).
+		WithFormField("username", userName).WithFormField("password", userPassword).
+		Expect().Status(http.StatusOK).JSON().Object()
+	registerResp.Value("status_code").Number().IsEqual(0)
+	registerResp.Value("user_id").Number().Gt(0)
+	registerResp.Value("token").String().Length().Gt(0)
+
+	loginResp := e.POST("/douyin/user/login/").WithQuery("username", userName).WithQuery("password", userPassword).
+		WithFormField("username", userName).WithFormField("password", userPassword).
+		Expect().Status(http.StatusOK).JSON().Object()
+	loginResp.Value("status_code").Number().IsEqual(0)
+	loginResp.Value("user_id").Number().Gt(0)
+	loginResp.Value("token").String().Length().Gt(0)
+
+	userId, token := int64(loginResp.Value("user_id").Number().Raw()), loginResp.Value("token").String().Raw()
+	userResp := e.GET("/douyin/user/").WithQuery("user_id", userId).WithQuery("token", token).
+		Expect().Status(http.StatusOK).JSON().Object()
+
+	userResp.Value("status_code").Number().IsEqual(0)
+	userInfo := userResp.Value("user").Object()
+	userInfo.NotEmpty()
+	userInfo.Value("id").Number().Gt(0)
+	userInfo.Value("name").String().Length().Gt(0)
+}
