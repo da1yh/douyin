@@ -46,3 +46,30 @@ func TestUserAction(t *testing.T) {
 	userInfo.Value("id").Number().Gt(0)
 	userInfo.Value("name").String().Length().Gt(0)
 }
+
+func TestPublishAction(t *testing.T) {
+	e := newExpect(t)
+	userId, token := getTestUser("Niko", e)
+	publishResp := e.POST("/douyin/publish/action/").
+		WithMultipart().WithFormField("token", token).WithFormField("title", "bear").
+		WithFile("data", "../public/bear.mp4").
+		Expect().Status(http.StatusOK).JSON().Object()
+	publishResp.Value("status_code").Number().IsEqual(0)
+
+	//for testing publish_list, check the length of video list is greater than 0,
+	// for every video in video list, there exist necessary keys and url is not empty
+
+	publishListResp := e.GET("/douyin/publish/list").
+		WithQuery("user_id", userId).WithQuery("token", token).
+		Expect().Status(http.StatusOK).JSON().Object()
+	publishListResp.Value("status_code").Number().IsEqual(0)
+	publishListResp.Value("video_list").Array().Length().Gt(0)
+	for _, elememt := range publishListResp.Value("video_list").Array().Iter() {
+		video := elememt.Object()
+		video.ContainsKey("id")
+		video.ContainsKey("author")
+		video.Value("play_url").String().NotEmpty()
+		video.Value("cover_url").String().NotEmpty()
+	}
+
+}
