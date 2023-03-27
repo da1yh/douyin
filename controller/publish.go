@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-type PublishListResp struct {
+type VideoListResp struct {
 	Response
 	VideoList []Video `json:"video_list,omitempty"`
 }
@@ -51,7 +51,7 @@ func Publish(c *gin.Context) {
 
 // PublishList all users have same publish_list
 func PublishList(c *gin.Context) {
-	c.JSON(http.StatusOK, PublishListResp{
+	c.JSON(http.StatusOK, VideoListResp{
 		Response: Response{
 			StatusCode: 0,
 		},
