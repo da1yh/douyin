@@ -30,3 +30,10 @@ type Comment struct {
 	Content    string `json:"content,omitempty"`
 	CreateDate string `json:"create_date,omitempty"`
 }
+
+type Message struct {
+	Id         int64  `json:"id,omitempty"`
+	ToUserId   int64  `json:"to_user_id"`
+	FromUserId int64  `json:"from_user_id"`
+	Content    string `json:"content,omitempty"`
+}
