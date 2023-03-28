@@ -19,8 +19,8 @@ var userLoginInfo = map[string]User{
 
 type UserLoginResp struct {
 	Response
-	UserId int64  `json:"user_id,omitempty"`
-	Token  string `json:"token,omitempty"`
+	UserId int64  `json:"user_id"`
+	Token  string `json:"token"`
 }
 
 type UserResp struct {

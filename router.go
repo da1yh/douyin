@@ -22,7 +22,7 @@ func initRouter(r *gin.Engine) {
 	//interact api
 	apiRouter.POST("/favorite/action/", controller.Favorite)
 	apiRouter.GET("/favorite/list/", controller.FavoriteList)
-	apiRouter.POST("/comment/action/", controller.Comment)
+	apiRouter.POST("/comment/action/", controller.CommentAction)
 	apiRouter.GET("/comment/list/", controller.CommentList)
 
 	//social api

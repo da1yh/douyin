@@ -20,3 +20,12 @@ var DemoUser = User{
 	FollowerCount: 200,
 	IsFollow:      true,
 }
+
+var DemoComment = []Comment{
+	{
+		Id:         1,
+		User:       DemoUser,
+		Content:    "vit 2:1 navi, ggwp",
+		CreateDate: "2022-01-03",
+	},
+}
