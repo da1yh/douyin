@@ -37,3 +37,14 @@ type Message struct {
 	FromUserId int64  `json:"from_user_id"`
 	Content    string `json:"content,omitempty"`
 }
+
+type MessageSendEvent struct {
+	FromUserId int64  `json:"from_user_id,omitempty"`
+	ToUserId   int64  `json:"to_user_id,omitempty"`
+	MsgContent string `json:"msg_content,omitempty"`
+}
+
+type MessagePushEvent struct {
+	FromUserId int64  `json:"from_user_id,omitempty"`
+	MsgContent string `json:"msg_content,omitempty"`
+}
