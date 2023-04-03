@@ -7,20 +7,21 @@ import (
 
 func initRouter(r *gin.Engine) {
 
-	r.Static("/static", "./public")
+	//r.Static("/static", "./public")
 
 	apiRouter := r.Group("/douyin")
 
 	//basic api
-	apiRouter.GET("/feed/", controller.Feed)
-	apiRouter.POST("/user/register/", controller.Register)
-	apiRouter.POST("/user/login/", controller.Login)
 	apiRouter.GET("/user/", controller.UserInfo)
-	apiRouter.POST("/publish/action/", controller.Publish)
+	apiRouter.POST("/user/register/", controller.UserRegister)
+	apiRouter.POST("/user/login/", controller.UserLogin)
+
+	apiRouter.GET("/feed/", controller.Feed)
+	apiRouter.POST("/publish/action/", controller.PublishAction)
 	apiRouter.GET("/publish/list/", controller.PublishList)
 
 	//interact api
-	apiRouter.POST("/favorite/action/", controller.Favorite)
+	apiRouter.POST("/favorite/action/", controller.FavoriteAction)
 	apiRouter.GET("/favorite/list/", controller.FavoriteList)
 	apiRouter.POST("/comment/action/", controller.CommentAction)
 	apiRouter.GET("/comment/list/", controller.CommentList)

@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func Favorite(c *gin.Context) {
+func FavoriteAction(c *gin.Context) {
 	token := c.Query("token")
 	if _, exist := userLoginInfo[token]; exist {
 		c.JSON(http.StatusOK, Response{

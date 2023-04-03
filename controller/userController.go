@@ -30,7 +30,7 @@ type UserResp struct {
 
 var userIdSequence int64 = 1
 
-func Register(c *gin.Context) {
+func UserRegister(c *gin.Context) {
 	//get username and password, check if user already exists, if not, respond new user info
 	username, password := c.Query("username"), c.Query("password")
 	token := username + "_" + password
@@ -53,7 +53,7 @@ func Register(c *gin.Context) {
 	}
 }
 
-func Login(c *gin.Context) {
+func UserLogin(c *gin.Context) {
 	//get username and password, check if user already exists, if does, respond user info
 	username, password := c.Query("username"), c.Query("password")
 	token := username + "_" + password

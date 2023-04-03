@@ -12,7 +12,7 @@ type VideoListResp struct {
 	VideoList []Video `json:"video_list,omitempty"`
 }
 
-func Publish(c *gin.Context) {
+func PublishAction(c *gin.Context) {
 	//check if user exists
 	token := c.PostForm("token")
 	if _, exist := userLoginInfo[token]; !exist {
