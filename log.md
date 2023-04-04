@@ -80,10 +80,26 @@ service层使用Redis保存热键，使用RabbitMQ
 
 - 写路由 ☑️
 - 规范一下命名
+- 重新设计数据库，比如索引等
+- 实现token
+- - 生成token ☑️
+- - 验证token ☑️
 - 实现user模块 register login info
+- - 实现register 
+- - - 实现各层逻辑 ☑️
+- - - 测试各层代码 ☑️
+- - 实现login
+- - - 实现各层逻辑 ☑️
+- - - 测试各层代码 ☑️
+- - 实现info
+- - - 实现各层逻辑 ing
+- - - 测试各层逻辑
 - - 学习gin-gorm-mysql ☑️
 - - 设计数据表 ☑️
-- - 根据数据表，利用gorm和mysql实现基本框架
+- - 连接数据库 initDao() ☑️
+- - 根据数据表，利用gorm和mysql实现基本框架(从下层到上层)
+- - - 在mysql创建数据表 ☑️
+- - - 在dao层中定义结构体和写相关函数接口
 
 ## User模块
 
@@ -92,6 +108,42 @@ service层使用Redis保存热键，使用RabbitMQ
 增删改查
 
 add delete update find
+
+## bug解决
+
+Q: jwt生成token时，出现错误key is of invalid type
+
+A: 把SignedString函数参数从string类型换成byte数组
+
+
+---
+
+
+
+
+## 问题
+
+数据库中唯一索引和唯一约束
+
+数据库应不应该用外键
+
+https://blog.csdn.net/wch020928/article/details/126714294
+
+是否要使用gorm自动建表
+
+## 项目问题
+
+用户注销会导致数据库中用户id减1吗，那token不就不一样了(不会-1)
+
+## 参考资料
+
+gorm标签
+
+https://blog.csdn.net/abc54250/article/details/129233456
+
+gorm crud
+
+https://blog.csdn.net/weixin_45604257/article/details/105139862
 
 
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"douyin/controller"
+	"douyin/middleware/jwt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +13,7 @@ func initRouter(r *gin.Engine) {
 	apiRouter := r.Group("/douyin")
 
 	//basic api
-	apiRouter.GET("/user/", controller.UserInfo)
+	apiRouter.GET("/user/", jwt.Auth(), controller.UserInfo)
 	apiRouter.POST("/user/register/", controller.UserRegister)
 	apiRouter.POST("/user/login/", controller.UserLogin)
 
