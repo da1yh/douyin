@@ -11,4 +11,7 @@ type UserService interface {
 
 	// FindUserByNameAndPassword 根据用户名和密码找到用户
 	FindUserByNameAndPassword(name, password string) (dao.User, error)
+
+	// FindUserById 根据id查找用户
+	FindUserById(id int64) (dao.User, error)
 }

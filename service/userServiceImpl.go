@@ -34,3 +34,13 @@ func (usi UserServiceImpl) FindUserByNameAndPassword(name, password string) (dao
 	}
 	return user, nil
 }
+
+func (usi UserServiceImpl) FindUserById(id int64) (dao.User, error) {
+	user, err := dao.FindUserById(id)
+	if err != nil {
+		log.Println("error: ", err.Error())
+		log.Println("user not found")
+		return user, err
+	}
+	return user, nil
+}

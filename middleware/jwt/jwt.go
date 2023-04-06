@@ -16,6 +16,7 @@ type Response struct {
 }
 
 type MyCustomClaims struct {
+	Id       int64  `json:"id"`
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	jwt.StandardClaims
@@ -23,6 +24,7 @@ type MyCustomClaims struct {
 
 func GenerateToken(id int64, name, password string) string {
 	claims := MyCustomClaims{
+		Id:       id,
 		Name:     name,
 		Password: password,
 		StandardClaims: jwt.StandardClaims{
@@ -60,6 +62,7 @@ func Auth() gin.HandlerFunc {
 				StatusCode: 2, StatusMsg: "unauthorized, login again",
 			})
 		}
+		c.Set("id", myCustomClaims.Id)
 		c.Set("name", myCustomClaims.Name)
 		c.Set("password", myCustomClaims.Password)
 		c.Next()

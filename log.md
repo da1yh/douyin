@@ -107,7 +107,7 @@ service层使用Redis保存热键，使用RabbitMQ
 
 增删改查
 
-add delete update find
+add delete update find count
 
 ## bug解决
 
@@ -130,6 +130,8 @@ A: 把SignedString函数参数从string类型换成byte数组
 https://blog.csdn.net/wch020928/article/details/126714294
 
 是否要使用gorm自动建表
+
+如何正确使用go的错误处理，什么场合，什么处理方式？
 
 ## 项目问题
 

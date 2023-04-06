@@ -37,3 +37,12 @@ func FindUserByNameAndPassword(name, password string) (User, error) {
 	}
 	return user, nil
 }
+
+func FindUserById(id int64) (User, error) {
+	user := User{}
+	if err := Db.Where("id=?", id).First(&user).Error; err != nil {
+		log.Println("error: ", err.Error())
+		return user, err
+	}
+	return user, nil
+}
