@@ -33,3 +33,8 @@ func TestFindUserByNameAndPassword(t *testing.T) {
 	user, _ := FindUserByNameAndPassword("zywoo", "7355608")
 	assert.True(t, user.Name == "zywoo" && user.Password == "7355608")
 }
+
+func TestFindUserById(t *testing.T) {
+	user, _ := FindUserById(16)
+	assert.True(t, user.Name == "niko" && user.Password == "8065537")
+}

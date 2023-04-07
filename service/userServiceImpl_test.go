@@ -31,3 +31,9 @@ func TestUserServiceImpl_FindUserByNameAndPassword(t *testing.T) {
 	user, _ := impl.FindUserByNameAndPassword("zywoo", "7355608")
 	assert.True(t, user.Name == "zywoo" && user.Password == "7355608")
 }
+
+func TestUserServiceImpl_FindUserById(t *testing.T) {
+	impl := UserServiceImpl{}
+	user, _ := impl.FindUserById(16)
+	assert.True(t, user.Name == "niko" && user.Password == "8065537")
+}
