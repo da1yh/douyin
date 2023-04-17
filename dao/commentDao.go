@@ -13,3 +13,12 @@ type Comment struct {
 func (Comment) TableName() string {
 	return "comment"
 }
+
+func CountCommentsByToVideoId(toVideoId int64) (int64, error) {
+	comment := Comment{}
+	var count int64
+	if err := Db.Where("to_video_id=?", toVideoId).Find(&comment).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}

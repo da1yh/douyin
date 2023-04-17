@@ -19,7 +19,7 @@ func initRouter(r *gin.Engine) {
 
 	apiRouter.GET("/feed/", controller.Feed)
 	apiRouter.POST("/publish/action/", jwt.AuthPost(), controller.PublishAction)
-	apiRouter.GET("/publish/list/", controller.PublishList)
+	apiRouter.GET("/publish/list/", jwt.Auth(), controller.PublishList)
 
 	//interact api
 	apiRouter.POST("/favorite/action/", controller.FavoriteAction)

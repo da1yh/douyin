@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -76,12 +77,64 @@ func PublishAction(c *gin.Context) {
 	})
 }
 
-// PublishList all users have same publish_list
+func GetRespUserByBothId(myId, yourId int64) (User, error) {
+	rsi := service.RelationServiceImpl{}
+	usi := service.UserServiceImpl{}
+	followCount, _ := rsi.CountRelationsByFromUserId(yourId)
+	followerCount, _ := rsi.CountRelationsByToUserId(yourId)
+	isFollow, _ := rsi.CheckRelationByBothId(myId, yourId)
+	usr, _ := usi.FindUserById(yourId)
+	user := User{
+		Id:            yourId,
+		Name:          usr.Name,
+		FollowCount:   followCount,
+		FollowerCount: followerCount,
+		IsFollow:      isFollow,
+	}
+	return user, nil
+}
+
+// PublishList 根据id，查询数据库，获得video
 func PublishList(c *gin.Context) {
-	//c.JSON(http.StatusOK, VideoListResp{
-	//	Response: Response{
-	//		StatusCode: 0,
-	//	},
-	//	VideoList: DemoVideoList,
-	//})
+	userId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	author, err := GetRespUserByBothId(c.GetInt64("id"), userId)
+	if err != nil {
+		c.JSON(http.StatusOK, Response{
+			StatusCode: 1, StatusMsg: "user not exist",
+		})
+		return
+	}
+	vsi := service.VideoServiceImpl{}
+	videos, err := vsi.FindPublishedVideosByUserId(userId)
+	if err != nil {
+		c.JSON(http.StatusOK, Response{
+			StatusCode: 2, StatusMsg: "fetch user's published video(s) failed",
+		})
+		return
+	}
+
+	videoList := make([]Video, 0)
+
+	fsi := service.FavoriteServiceImpl{}
+	csi := service.CommentServiceImpl{}
+
+	for _, video := range videos {
+		var tmpVideo Video
+		tmpVideo.Id = video.Id
+		tmpVideo.Author = author
+		tmpVideo.PlayUrl = video.PlayUrl
+		tmpVideo.CoverUrl = video.CoverUrl
+		tmpVideo.Title = video.Title
+		tmpVideo.FavoriteCount, _ = fsi.CountFavoritesByToVideoId(video.Id)
+		tmpVideo.IsFavorite, _ = fsi.CheckFavoriteByBothId(author.Id, video.Id)
+		tmpVideo.CommentCount, _ = csi.CountCommentsByToVideoId(video.Id)
+		videoList = append(videoList, tmpVideo)
+	}
+
+	c.JSON(http.StatusOK, VideoListResp{
+		Response: Response{
+			StatusCode: 0,
+		},
+		VideoList: videoList,
+	})
 }

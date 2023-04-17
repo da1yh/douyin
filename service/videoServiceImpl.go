@@ -13,3 +13,12 @@ func (vsi VideoServiceImpl) AddVideo(video dao.Video) error {
 	}
 	return nil
 }
+
+func (vsi VideoServiceImpl) FindPublishedVideosByUserId(userId int64) ([]dao.Video, error) {
+	videos := make([]dao.Video, 0)
+	videos, err := dao.FindPublishedVideosByUserId(userId)
+	if err != nil {
+		return videos, err
+	}
+	return videos, nil
+}

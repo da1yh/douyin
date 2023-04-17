@@ -25,3 +25,12 @@ func AddVideo(video Video) error {
 	}
 	return nil
 }
+
+func FindPublishedVideosByUserId(userId int64) ([]Video, error) {
+	videos := make([]Video, 0)
+	if err := Db.Where("user_id=?", userId).Find(&videos).Error; err != nil {
+		log.Println(err)
+		return videos, err
+	}
+	return videos, nil
+}
