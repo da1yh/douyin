@@ -1,6 +1,9 @@
 package dao
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 type Video struct {
 	Id          int64     `gorm:"column:id"`
@@ -13,4 +16,12 @@ type Video struct {
 
 func (Video) TableName() string {
 	return "video"
+}
+
+func AddVideo(video Video) error {
+	if err := Db.Create(&video).Error; err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }

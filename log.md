@@ -94,12 +94,21 @@ service层使用Redis保存热键，使用RabbitMQ
 - - 实现info
 - - - 实现各层逻辑 ☑️
 - - - 测试各层逻辑 （待完成）
-- - 学习gin-gorm-mysql ☑️
-- - 设计数据表 ☑️
-- - 连接数据库 initDao() ☑️
-- - 根据数据表，利用gorm和mysql实现基本框架(从下层到上层)
-- - - 在mysql创建数据表 ☑️
-- - - 在dao层中定义结构体和写相关函数接口
+- 实现video模块，feed、publish_action、publish_list
+- - publish_action
+- - - 实现逻辑 ing
+- - - 测试逻辑
+- 学ftp和nginx ☑️
+- 学ffmpeg ☑️
+- 学长连接
+- 学通道和协程 （并发此处不实现）
+- 学ssh调用
+- 学习gin-gorm-mysql ☑️
+- 设计数据表 ☑️
+- 连接数据库 initDao() ☑️
+- 根据数据表，利用gorm和mysql实现基本框架(从下层到上层)
+- - 在mysql创建数据表 ☑️
+- - 在dao层中定义结构体和写相关函数接口
 
 ## User模块
 
@@ -118,6 +127,23 @@ A: 把SignedString函数参数从string类型换成byte数组
 
 ---
 
+Q: 测试ftp文件上传和截图时出现如下错误
+
+发现有空指针引用问题，一个是var c *ftp.ServerConn，在后面这个变量不能用短变量声明
+
+一个是os.Open()参数中相对路径错误
+
+还有一个时assert.True(t, err == nil, err.Error())中err如果为空，就不能调用err.Error(),
+所以在msgAndArgs参数中不能写err.Error()
+
+用ssh截图时出现Screenshot()返回错误，错误为Process exited with status 127
+
+A:一个session只能run一条命令，所以每次都要newSession()，发送心跳也是如此
+
+session最好是局部变量，用完及销
+
+最最傻逼的问题就是openssh可以用ffmpeg命令，但是golang的ssh只能用/usr/local/ffmpeg/bin/ffmpeg代替ffmpeg命令
+否则找不到命令，就算设置了环境变量
 
 
 
@@ -139,7 +165,7 @@ omitempty
 
 ## 项目问题
 
-
+上传的视频中title不能有空格
 
 ## 参考资料
 
@@ -150,6 +176,14 @@ https://blog.csdn.net/abc54250/article/details/129233456
 gorm crud
 
 https://blog.csdn.net/weixin_45604257/article/details/105139862
+
+gin postform和query的区别
+
+https://gin-gonic.com/zh-cn/docs/examples/query-and-post-form/
+
+go与ftp
+
+https://github.com/jlaffaye/ftp
 
 
 

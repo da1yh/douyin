@@ -54,7 +54,7 @@ func UserRegister(c *gin.Context) {
 			log.Println("error: ", err.Error())
 			c.JSON(http.StatusOK, UserLoginResponse{
 				Response: Response{
-					StatusCode: 2, StatusMsg: "register fail",
+					StatusCode: 2, StatusMsg: "register failed",
 				},
 			})
 		}
