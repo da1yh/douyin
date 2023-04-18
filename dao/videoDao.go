@@ -34,3 +34,12 @@ func FindPublishedVideosByUserId(userId int64) ([]Video, error) {
 	}
 	return videos, nil
 }
+
+func FindVideosByTimeAndNum(pubTime time.Time, num int) ([]Video, error) {
+	videos := make([]Video, 0, num)
+	if err := Db.Where("publish_time<?", pubTime).Order("publish_time desc").Limit(num).Find(&videos).Error; err != nil {
+		log.Println(err)
+		return videos, err
+	}
+	return videos, nil
+}

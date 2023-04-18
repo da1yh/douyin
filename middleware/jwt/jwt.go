@@ -95,6 +95,27 @@ func AuthPost() gin.HandlerFunc {
 	}
 }
 
+func AuthVisitor() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := c.Query("token")
+		if len(tokenString) == 0 {
+			c.Set("id", -1)
+			c.Next()
+			return
+		}
+		myCustomClaims, err := ParseToken(tokenString)
+		if err != nil {
+			c.Abort()
+			c.JSON(http.StatusUnauthorized, Response{
+				StatusCode: 2, StatusMsg: "unauthorized, login again",
+			})
+			return
+		}
+		c.Set("id", myCustomClaims.Id)
+		c.Next()
+	}
+}
+
 func ParseToken(tokenString string) (*MyCustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.SecretKey), nil

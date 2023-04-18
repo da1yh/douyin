@@ -14,7 +14,13 @@ import (
 
 type VideoListResp struct {
 	Response
-	VideoList []Video `json:"video_list,omitempty"`
+	VideoList []Video `json:"video_list"`
+}
+
+type FeedResponse struct {
+	Response
+	VideoList []Video `json:"video_list"`
+	NextTime  int64   `json:"next_time"`
 }
 
 // PublishAction 通过鉴权后，获得token的id，name和password，获得context的视频数据和标题，封装一个新的视频文件名，将它上传到ftp服务器，
@@ -71,18 +77,25 @@ func PublishAction(c *gin.Context) {
 		})
 		return
 	}
-	log.Println("video upload successfull")
+	log.Println("video upload successfully")
 	c.JSON(http.StatusOK, Response{
 		StatusCode: 0, StatusMsg: "video upload successfully",
 	})
 }
 
+// GetRespUserByBothId 通过当前用户的id和待查询用户的id，获得UserResponse，游客id为myId=-1
 func GetRespUserByBothId(myId, yourId int64) (User, error) {
 	rsi := service.RelationServiceImpl{}
 	usi := service.UserServiceImpl{}
-	followCount, _ := rsi.CountRelationsByFromUserId(yourId)
-	followerCount, _ := rsi.CountRelationsByToUserId(yourId)
-	isFollow, _ := rsi.CheckRelationByBothId(myId, yourId)
+	var followCount, followerCount int64
+	var isFollow bool
+	followCount, _ = rsi.CountRelationsByFromUserId(yourId)
+	followerCount, _ = rsi.CountRelationsByToUserId(yourId)
+	if myId == -1 {
+		isFollow = false
+	} else {
+		isFollow, _ = rsi.CheckRelationByBothId(myId, yourId)
+	}
 	usr, _ := usi.FindUserById(yourId)
 	user := User{
 		Id:            yourId,
@@ -133,8 +146,60 @@ func PublishList(c *gin.Context) {
 
 	c.JSON(http.StatusOK, VideoListResp{
 		Response: Response{
-			StatusCode: 0,
+			StatusCode: 0, StatusMsg: "fetch user's videos successfully",
 		},
 		VideoList: videoList,
+	})
+}
+
+// Feed 通过鉴权后，获得最近时间，如果没有，则现在为最近时间，通过最近时间在数据库中查询最近的30条视频并返回
+func Feed(c *gin.Context) {
+	myId := c.GetInt64("id")
+	latestTimeString := c.Query("latest_time")
+	var latestTime time.Time
+	if len(latestTimeString) == 0 {
+		latestTime = time.Now()
+	} else {
+		latestTimeInt, _ := strconv.ParseInt(latestTimeString, 10, 64)
+		latestTime = time.Unix(latestTimeInt, 0)
+	}
+	vsi := service.VideoServiceImpl{}
+	videos, err := vsi.FindVideosByTimeAndNum(latestTime, 30)
+	if err != nil {
+		c.JSON(http.StatusOK, Response{
+			StatusCode: 1, StatusMsg: "feed videos failed",
+		})
+		return
+	}
+
+	videoList := make([]Video, 0)
+
+	fsi := service.FavoriteServiceImpl{}
+	csi := service.CommentServiceImpl{}
+
+	var nextTime = time.Now().Unix()
+
+	for _, video := range videos {
+		var tmpVideo Video
+		tmpVideo.Id = video.Id
+		tmpVideo.Author, _ = GetRespUserByBothId(myId, video.UserId)
+		tmpVideo.PlayUrl = video.PlayUrl
+		tmpVideo.CoverUrl = video.CoverUrl
+		tmpVideo.Title = video.Title
+		tmpVideo.FavoriteCount, _ = fsi.CountFavoritesByToVideoId(video.Id)
+		tmpVideo.IsFavorite, _ = fsi.CheckFavoriteByBothId(myId, video.Id)
+		tmpVideo.CommentCount, _ = csi.CountCommentsByToVideoId(video.Id)
+		videoList = append(videoList, tmpVideo)
+		if nextTime > video.PublishTime.Unix() {
+			nextTime = video.PublishTime.Unix()
+		}
+	}
+
+	c.JSON(http.StatusOK, FeedResponse{
+		Response: Response{
+			StatusCode: 0, StatusMsg: "feed videos successfully",
+		},
+		VideoList: videoList,
+		NextTime:  nextTime,
 	})
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"douyin/dao"
+	"time"
 )
 
 type VideoServiceImpl struct {
@@ -17,6 +18,15 @@ func (vsi VideoServiceImpl) AddVideo(video dao.Video) error {
 func (vsi VideoServiceImpl) FindPublishedVideosByUserId(userId int64) ([]dao.Video, error) {
 	videos := make([]dao.Video, 0)
 	videos, err := dao.FindPublishedVideosByUserId(userId)
+	if err != nil {
+		return videos, err
+	}
+	return videos, nil
+}
+
+func (vsi VideoServiceImpl) FindVideosByTimeAndNum(pubTime time.Time, num int) ([]dao.Video, error) {
+	videos := make([]dao.Video, 0, num)
+	videos, err := dao.FindVideosByTimeAndNum(pubTime, num)
 	if err != nil {
 		return videos, err
 	}

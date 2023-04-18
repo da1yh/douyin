@@ -5,6 +5,7 @@ import (
 	"douyin/middleware/ftp"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestInit2(t *testing.T) {
@@ -57,4 +58,36 @@ func TestPublishList(t *testing.T) {
 		author.Value("id").Number().IsEqual(16)
 		author.Value("name").String().IsEqual("niko")
 	}
+}
+
+func TestFeed(t *testing.T) {
+	// test login
+	e := newExpect(t)
+	userName, password := "zywoo", "7355608"
+	loginResp := e.POST("/douyin/user/login/").
+		WithQuery("username", userName).WithQuery("password", password).
+		Expect().Status(http.StatusOK).JSON().Object()
+	loginResp.Value("status_code").Number().IsEqual(0)
+	loginResp.Value("user_id").Number().Gt(0)
+	loginResp.Value("token").String().Length().Gt(0)
+	token := loginResp.Value("token").String().Raw()
+
+	feedResp := e.GET("/douyin/feed/").
+		WithQuery("token", token).WithQuery("latest_time", time.Now().Unix()).
+		Expect().Status(http.StatusOK).JSON().Object()
+	feedResp.Value("status_code").Number().IsEqual(0)
+	feedResp.Value("video_list").Array().Length().IsEqual(3)
+	//tmpTime, _ := time.ParseInLocation("2006-01-02", time.Now().Format("2023-04-17 12:06:25"), time.Local)
+	//feedResp.Value("next_time").Number().IsEqual(tmpTime.Unix())
+
+	// test visitor
+
+	feedResp = e.GET("/douyin/feed/").
+		//WithQuery("token", token).WithQuery("latest_time", time.Now().Unix()).
+		Expect().Status(http.StatusOK).JSON().Object()
+	feedResp.Value("status_code").Number().IsEqual(0)
+	feedResp.Value("video_list").Array().Length().IsEqual(3)
+	//tmpTime, _ = time.Parse("2023-04-17 12:06:25", "2023-04-17 12:06:25")
+	//feedResp.Value("next_time").Number().IsEqual(tmpTime.Unix())
+
 }

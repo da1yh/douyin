@@ -1,6 +1,9 @@
 package service
 
-import "douyin/dao"
+import (
+	"douyin/dao"
+	"time"
+)
 
 type VideoService interface {
 	// AddVideo 把视频添加进数据库
@@ -8,4 +11,7 @@ type VideoService interface {
 
 	// FindPublishedVideosByUserId 通过userId，找到这个人发布的所有视频
 	FindPublishedVideosByUserId(userId int64) ([]dao.Video, error)
+
+	// FindVideosByTimeAndNum 查找发布时间比pubTime早的最近num条视频
+	FindVideosByTimeAndNum(pubTime time.Time, num int64) ([]dao.Video, error)
 }
