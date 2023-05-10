@@ -81,10 +81,10 @@ service层使用Redis保存热键，使用RabbitMQ
 - 写路由 ☑️
 - 规范一下命名
 - 重新设计数据库，比如索引等
-- 实现token
+- 实现token ☑️
 - - 生成token ☑️
 - - 验证token ☑️
-- 实现user模块 register login info
+- 实现user模块 register login info ☑️
 - - 实现register 
 - - - 实现各层逻辑 ☑️
 - - - 测试各层代码 ☑️
@@ -94,7 +94,7 @@ service层使用Redis保存热键，使用RabbitMQ
 - - 实现info
 - - - 实现各层逻辑 ☑️
 - - - 测试各层逻辑 （待完成）
-- 实现video模块，feed、publish_action、publish_list
+- 实现video模块，feed、publish_action、publish_list ☑️
 - - publish_action
 - - - 实现逻辑 ing
 - - - 测试逻辑
@@ -102,13 +102,26 @@ service层使用Redis保存热键，使用RabbitMQ
 - 学ffmpeg ☑️
 - 学长连接
 - 学通道和协程 （并发此处不实现）
-- 学ssh调用
+- 学ssh调用 ☑️
 - 学习gin-gorm-mysql ☑️
 - 设计数据表 ☑️
 - 连接数据库 initDao() ☑️
 - 根据数据表，利用gorm和mysql实现基本框架(从下层到上层)
 - - 在mysql创建数据表 ☑️
 - - 在dao层中定义结构体和写相关函数接口
+
+
+- 初步学习redis ☑️
+- 初步学习rabbitmq ☑️
+- 编写初始化redis代码 ☑️
+- 编写初始化rabbitmq代码 
+- 实现favorite模块
+- - favorite action
+- - - 实现逻辑
+- - - 测试逻辑
+- - favorite list
+- - - 实现逻辑
+- - - 测试逻辑
 
 ## User模块
 
@@ -184,6 +197,10 @@ https://gin-gonic.com/zh-cn/docs/examples/query-and-post-form/
 go与ftp
 
 https://github.com/jlaffaye/ftp
+
+kafka与rabbitmq
+
+https://www.cnblogs.com/xinliangcoder/p/15196078.html
 
 
 

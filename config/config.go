@@ -29,3 +29,10 @@ const SSHServerPort = "22"
 // videoPath
 const PlayPathPrefix = "120.26.161.171/video/"
 const CoverPathPrefix = "120.26.161.171/image/"
+
+// redis
+const RedisServerAddr = "127.0.0.1:6379"
+const RedisServerPwd = "douyin"
+
+// rabbitmq
+const RabbitMQServerAddr = "amqp://guest:guest@localhost:5672/"
