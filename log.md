@@ -117,11 +117,12 @@ service层使用Redis保存热键，使用RabbitMQ
 - 编写初始化rabbitmq代码 
 - 实现favorite模块
 - - favorite action
-- - - 实现逻辑
-- - - 测试逻辑
+- - - 实现逻辑 ☑️
+- - - 测试逻辑 ☑️
 - - favorite list
 - - - 实现逻辑
 - - - 测试逻辑
+- 将favorite之前写的代码改成redis ☑️
 
 ## User模块
 
@@ -130,6 +131,16 @@ service层使用Redis保存热键，使用RabbitMQ
 增删改查
 
 add delete update find count
+
+redis命名
+
+key: "模块名" + "-" + "键名" + "键值"
+
+value: "模块名" + "-" + "值名" + "值值"
+
+eg. "favorite-fromUserId-15"
+
+注意键名一般和数据库字段有关，但是用驼峰命名法，即和程序内部的名字同步（而不是和数据库字段同步）
 
 ## bug解决
 

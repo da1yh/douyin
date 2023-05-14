@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"context"
 	"douyin/dao"
+	"douyin/util"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"strconv"
 	"strings"
@@ -82,7 +83,7 @@ func (mq FavoriteMQ) Consume() {
 			fromUserId, _ := strconv.ParseInt(fromUserIdStr, 10, 64)
 			toVideoId, _ := strconv.ParseInt(toVideoIdStr, 10, 64)
 			res, _ := dao.CheckFavoriteByBothId(fromUserId, toVideoId)
-			if tp == "like" {
+			if tp == util.RedisLikeType {
 				if !res {
 					err := dao.AddFavoriteByBothId(fromUserId, toVideoId)
 					if err != nil {
