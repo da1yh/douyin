@@ -115,13 +115,13 @@ service层使用Redis保存热键，使用RabbitMQ
 - 初步学习rabbitmq ☑️
 - 编写初始化redis代码 ☑️
 - 编写初始化rabbitmq代码 
-- 实现favorite模块
-- - favorite action
+- 实现favorite模块 ☑️
+- - favorite action ☑️
 - - - 实现逻辑 ☑️
 - - - 测试逻辑 ☑️
-- - favorite list
-- - - 实现逻辑
-- - - 测试逻辑
+- - favorite list ☑️
+- - - 实现逻辑 ☑️
+- - - 测试逻辑 ☑️
 - 将favorite之前写的代码改成redis ☑️
 
 ## User模块
@@ -141,6 +141,17 @@ value: "模块名" + "-" + "值名" + "值值"
 eg. "favorite-fromUserId-15"
 
 注意键名一般和数据库字段有关，但是用驼峰命名法，即和程序内部的名字同步（而不是和数据库字段同步）
+
+对于service和dao每个函数的命名，最好都要加上模块名以标识，每个模块的service不可调用别的模块service，
+每个模块的dao不可调用别的模块的dao，对于命名
+
+应当以："动作" + "模块名" + "动作导致的对象" + "By" + "动作借助的对象" （驼峰）(如果"动作导致的对象"是所有字段，则"动作导致的对象"可省略)
+
+eg Find Favorite VideoIds By FromUserId
+
+上述表示，在favorite数据表中，通过fromUserId字段，查找信息，保留videoId字段，如果结果有很多，后面加s
+
+service层和dao层函数命名相似，其中逻辑不同的是，service层有redis和rabbitmq，dao层是直接对数据库进行操作（gorm）
 
 ## bug解决
 
@@ -169,7 +180,15 @@ session最好是局部变量，用完及销
 最最傻逼的问题就是openssh可以用ffmpeg命令，但是golang的ssh只能用/usr/local/ffmpeg/bin/ffmpeg代替ffmpeg命令
 否则找不到命令，就算设置了环境变量
 
+---
 
+Q: favoriteList测试时，返回值的video的favorite_count和is_favorite值为0，user的author的值为默认值
+
+A：favorite_controller.go中的GetVideoById函数里，goroutine的形参应该传指针
+
+忘记go build里，一直停留在未改动的版本
+
+对于author的问题，for range循环里，给slice的元素赋值要用索引，否则只是副本
 
 ## 问题
 
@@ -187,9 +206,24 @@ omitempty
 
 当用户的请求有问题时，应该返回404，还是返回200，然后在response中说用户请求有问题
 
+goroutine出错怎么处理
+
 ## 项目问题
 
 上传的视频中title不能有空格
+
+favoriteService又大量重复代码，是否可合并
+
+获取点赞列表时，根据用户id获得视频列表，使用到redis，肯定要更新<fromUserId, toVideoId>
+是否要更新<toVideoId, fromUserId>, 是否会更高效
+
+同样在判断用户是否点赞该视频时，要不要在redis维护第二种数据结构
+
+消息队列在消费时，对数据库进行操作，是否要增加错误重试机制
+
+没有对redis是否存储成功进行测试
+
+哪些代码应该写在controller层，哪些写在service层
 
 ## 参考资料
 

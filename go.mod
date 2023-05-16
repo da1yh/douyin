@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/gavv/httpexpect/v2 v2.14.0
 	github.com/gin-gonic/gin v1.9.0
+	github.com/go-playground/assert/v2 v2.2.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jlaffaye/ftp v0.1.0
 	github.com/rabbitmq/amqp091-go v1.8.1

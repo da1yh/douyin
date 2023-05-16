@@ -33,10 +33,10 @@ func TestFavorite(t *testing.T) {
 
 	err = AddFavoriteByBothId(14, 3)
 	assert.Nil(t, err)
-	ids, err := FindVideoIdsByFromUserId(14)
+	ids, err := FindFavoriteVideoIdsByFromUserId(14)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ids), 2)
-	ids, err = FindVideoIdsByFromUserId(7)
+	ids, err = FindFavoriteVideoIdsByFromUserId(7)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ids), 0)
 }

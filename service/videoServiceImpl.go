@@ -32,3 +32,11 @@ func (vsi VideoServiceImpl) FindVideosByTimeAndNum(pubTime time.Time, num int) (
 	}
 	return videos, nil
 }
+
+func (vsi VideoServiceImpl) FindVideoById(id int64) (dao.Video, error) {
+	video, err := dao.FindVideoById(id)
+	if err != nil {
+		return video, err
+	}
+	return video, nil
+}

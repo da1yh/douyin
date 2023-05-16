@@ -7,6 +7,7 @@ import (
 	"douyin/util"
 	"log"
 	"strconv"
+	"strings"
 )
 
 type FavoriteServiceImpl struct {
@@ -45,7 +46,7 @@ func (fsi FavoriteServiceImpl) CountFavoritesByToVideoId(toVideoId int64) (int64
 			return 0, err
 		}
 		// 根据toVideoId查找该用户点赞的视频
-		userIds, err := dao.FindUserIdsByToVideoId(toVideoId)
+		userIds, err := dao.FindFavoriteUserIdsByToVideoId(toVideoId)
 		if err != nil {
 			log.Println("failed to find users who love this video")
 			return 0, err
@@ -105,7 +106,7 @@ func (fsi FavoriteServiceImpl) CheckFavoriteByBothId(fromUserId, toVideoId int64
 			return false, err
 		}
 		// 根据fromUserId查找该用户点赞的视频
-		videoIds, err := dao.FindVideoIdsByFromUserId(fromUserId)
+		videoIds, err := dao.FindFavoriteVideoIdsByFromUserId(fromUserId)
 		if err != nil {
 			log.Println("failed to find user's favorite videos")
 			return false, err
@@ -171,7 +172,7 @@ func (fsi FavoriteServiceImpl) AddFavoriteByBothId(fromUserId, toVideoId int64) 
 			return err
 		}
 		// 根据fromUserId查找该用户点赞的视频
-		videoIds, err := dao.FindVideoIdsByFromUserId(fromUserId)
+		videoIds, err := dao.FindFavoriteVideoIdsByFromUserId(fromUserId)
 		if err != nil {
 			log.Println("failed to find user's favorite videos")
 			return err
@@ -226,7 +227,7 @@ func (fsi FavoriteServiceImpl) AddFavoriteByBothId(fromUserId, toVideoId int64) 
 			return err
 		}
 		// 根据fromUserId查找该用户点赞的视频
-		userIds, err := dao.FindUserIdsByToVideoId(toVideoId)
+		userIds, err := dao.FindFavoriteUserIdsByToVideoId(toVideoId)
 		if err != nil {
 			log.Println("failed to find users who love this video")
 			return err
@@ -288,7 +289,7 @@ func (fsi FavoriteServiceImpl) DeleteFavoriteByBothId(fromUserId, toVideoId int6
 			return err
 		}
 		// 根据fromUserId查找该用户点赞的视频
-		videoIds, err := dao.FindVideoIdsByFromUserId(fromUserId)
+		videoIds, err := dao.FindFavoriteVideoIdsByFromUserId(fromUserId)
 		if err != nil {
 			log.Println("failed to find user's favorite videos")
 			return err
@@ -343,7 +344,7 @@ func (fsi FavoriteServiceImpl) DeleteFavoriteByBothId(fromUserId, toVideoId int6
 			return err
 		}
 		// 根据fromUserId查找该用户点赞的视频
-		userIds, err := dao.FindUserIdsByToVideoId(toVideoId)
+		userIds, err := dao.FindFavoriteUserIdsByToVideoId(toVideoId)
 		if err != nil {
 			log.Println("failed to find users who love this video")
 			return err
@@ -367,4 +368,66 @@ func (fsi FavoriteServiceImpl) DeleteFavoriteByBothId(fromUserId, toVideoId int6
 		}
 	}
 	return nil
+}
+
+func (fsi FavoriteServiceImpl) FindFavoriteVideoIdsByFromUserId(fromUserId int64) ([]int64, error) {
+	// <fromUserId, toVideoId>
+	videoIds := make([]int64, 0)
+	fromUserIdStr := strconv.FormatInt(fromUserId, 10)
+	keyStr := "favorite" + "-" + "fromUserId" + "-" + fromUserIdStr
+	n, err := redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
+	// 存在这个键
+	if n > 0 {
+		if err != nil {
+			log.Println("failed to query key in redis", err)
+			return videoIds, err
+		}
+		// 存在这个键，直接取值
+		vsStr, err := redis.RedisCli.SMembers(redis.Ctx, keyStr).Result()
+		if err != nil {
+			log.Println("failed to get members in redis", err)
+			return videoIds, err
+		}
+		for _, vStr := range vsStr {
+			//log.Println(vStr)
+			if vStr == util.RedisDefaultValue {
+				continue
+			}
+			videoId, _ := strconv.ParseInt(strings.Split(vStr, "-")[2], 10, 64)
+			videoIds = append(videoIds, videoId)
+		}
+		return videoIds, nil
+	} else { // 不存在这个键
+		_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, util.RedisDefaultValue).Result()
+		if err != nil {
+			log.Println("failed to add key in redis", err)
+			redis.RedisCli.Del(redis.Ctx, keyStr)
+			return videoIds, err
+		}
+		// 设置过期时间，1天到3天内随机，防止缓存雪崩
+		_, err = redis.RedisCli.Expire(redis.Ctx, keyStr, util.RandomDuration()).Result()
+		if err != nil {
+			log.Println("failed to set expiring time", err)
+			redis.RedisCli.Del(redis.Ctx, keyStr)
+			return videoIds, err
+		}
+		// 根据fromUserId查找该用户点赞的视频
+		videoIdsDao, err := dao.FindFavoriteVideoIdsByFromUserId(fromUserId)
+		if err != nil {
+			log.Println("failed to find user's favorite videos")
+			return videoIds, err
+		}
+		// 一个一个添加，如果又一个添加失败，则删除键（为了保证redis内容和数据库同步，一旦添加失败就不同步了）
+		for _, videoIdDao := range videoIdsDao {
+			videoIdStr := strconv.FormatInt(videoIdDao, 10)
+			vStr := "favorite" + "-" + "toVideoId" + "-" + videoIdStr
+			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
+			if err != nil {
+				log.Println("failed to add key in redis", err)
+				redis.RedisCli.Del(redis.Ctx, keyStr)
+				return videoIds, err
+			}
+		}
+		return videoIdsDao, nil
+	}
 }

@@ -43,3 +43,11 @@ func FindVideosByTimeAndNum(pubTime time.Time, num int) ([]Video, error) {
 	}
 	return videos, nil
 }
+
+func FindVideoById(id int64) (Video, error) {
+	video := Video{}
+	if err := Db.Where("id=?", id).First(&video).Error; err != nil {
+		return video, err
+	}
+	return video, nil
+}

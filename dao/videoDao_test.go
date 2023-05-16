@@ -41,3 +41,11 @@ func TestFindVideosByTimeAndNum(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, len(videos), 3)
 }
+
+func TestFindVideoById(t *testing.T) {
+	InitDb()
+	video, err := FindVideoById(3)
+	assert.Nil(t, err)
+	assert.Equal(t, video.UserId, int64(4))
+	assert.Equal(t, video.Title, "iamabear")
+}

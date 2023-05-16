@@ -14,4 +14,7 @@ type VideoService interface {
 
 	// FindVideosByTimeAndNum 查找发布时间比pubTime早的最近num条视频
 	FindVideosByTimeAndNum(pubTime time.Time, num int64) ([]dao.Video, error)
+
+	// FindVideoById 通过视频id，查找video
+	FindVideoById(id int64) (dao.Video, error)
 }

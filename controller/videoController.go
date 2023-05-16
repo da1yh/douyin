@@ -83,8 +83,8 @@ func PublishAction(c *gin.Context) {
 	})
 }
 
-// GetRespUserByBothId 通过当前用户的id和待查询用户的id，获得UserResponse，游客id为myId=-1
-func GetRespUserByBothId(myId, yourId int64) (User, error) {
+// GetUserRespByBothId 通过当前用户的id和待查询用户的id，获得UserResponse，游客id为myId=-1
+func GetUserRespByBothId(myId, yourId int64) (User, error) {
 	rsi := service.RelationServiceImpl{}
 	usi := service.UserServiceImpl{}
 	var followCount, followerCount int64
@@ -110,7 +110,7 @@ func GetRespUserByBothId(myId, yourId int64) (User, error) {
 // PublishList 根据id，查询数据库，获得video
 func PublishList(c *gin.Context) {
 	userId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)
-	author, err := GetRespUserByBothId(c.GetInt64("id"), userId)
+	author, err := GetUserRespByBothId(c.GetInt64("id"), userId)
 	if err != nil {
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 1, StatusMsg: "user not exist",
@@ -182,7 +182,7 @@ func Feed(c *gin.Context) {
 	for _, video := range videos {
 		var tmpVideo Video
 		tmpVideo.Id = video.Id
-		tmpVideo.Author, _ = GetRespUserByBothId(myId, video.UserId)
+		tmpVideo.Author, _ = GetUserRespByBothId(myId, video.UserId)
 		tmpVideo.PlayUrl = video.PlayUrl
 		tmpVideo.CoverUrl = video.CoverUrl
 		tmpVideo.Title = video.Title

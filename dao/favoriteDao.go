@@ -70,8 +70,8 @@ func DeleteFavoriteByBothId(fromUserId, toVideoId int64) error {
 //	return favorites, nil
 //}
 
-// FindVideoIdsByFromUserId 通过fromUserId查找这个用户点赞视频的所有Id
-func FindVideoIdsByFromUserId(fromUserId int64) ([]int64, error) {
+// FindFavoriteVideoIdsByFromUserId 通过fromUserId查找这个用户点赞视频的所有Id
+func FindFavoriteVideoIdsByFromUserId(fromUserId int64) ([]int64, error) {
 	toVideoIds := make([]int64, 0)
 	if err := Db.Model(&Favorite{}).Where("from_user_id=?", fromUserId).Pluck("to_video_id", &toVideoIds).Error; err != nil {
 		log.Println(err)
@@ -80,7 +80,7 @@ func FindVideoIdsByFromUserId(fromUserId int64) ([]int64, error) {
 	return toVideoIds, nil
 }
 
-func FindUserIdsByToVideoId(toVideoId int64) ([]int64, error) {
+func FindFavoriteUserIdsByToVideoId(toVideoId int64) ([]int64, error) {
 	fromUserIds := make([]int64, 0)
 	if err := Db.Model(&Favorite{}).Where("to_video_id=?", toVideoId).Pluck("from_user_id", &fromUserIds).Error; err != nil {
 		log.Println(err)

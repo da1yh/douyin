@@ -3,6 +3,7 @@ package controller
 import (
 	"douyin/dao"
 	"douyin/middleware/ftp"
+	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
 	"time"
@@ -90,4 +91,15 @@ func TestFeed(t *testing.T) {
 	//tmpTime, _ = time.Parse("2023-04-17 12:06:25", "2023-04-17 12:06:25")
 	//feedResp.Value("next_time").Number().IsEqual(tmpTime.Unix())
 
+}
+
+func TestGetUserRespByBothId(t *testing.T) {
+	dao.InitDb()
+	userResp, err := GetUserRespByBothId(4, 14)
+	assert.Nil(t, err)
+	assert.Equal(t, userResp.Id, int64(14))
+	assert.Equal(t, userResp.Name, "s1mple")
+	assert.Equal(t, userResp.FollowCount, int64(0))
+	assert.Equal(t, userResp.FollowerCount, int64(0))
+	assert.False(t, userResp.IsFollow)
 }
