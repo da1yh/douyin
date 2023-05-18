@@ -16,7 +16,7 @@ type FavoriteServiceImpl struct {
 func (fsi FavoriteServiceImpl) CountFavoritesByToVideoId(toVideoId int64) (int64, error) {
 	// <toVideoId, fromUserId>
 	toVideoIdStr := strconv.FormatInt(toVideoId, 10)
-	keyStr := "favorite" + "-" + "toVideoId" + "-" + toVideoIdStr
+	keyStr := "favorite" + util.RedisSplit + "toVideoId" + util.RedisSplit + toVideoIdStr
 	n, err := redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
 	// 存在这个键
 	if n > 0 {
@@ -54,7 +54,7 @@ func (fsi FavoriteServiceImpl) CountFavoritesByToVideoId(toVideoId int64) (int64
 		// 一个一个添加，如果又一个添加失败，则删除键（为了保证redis内容和数据库同步，一旦添加失败就不同步了）
 		for _, userId := range userIds {
 			userIdStr := strconv.FormatInt(userId, 10)
-			vStr := "favorite" + "-" + "fromUserId" + "-" + userIdStr
+			vStr := "favorite" + util.RedisSplit + "fromUserId" + util.RedisSplit + userIdStr
 			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
 			if err != nil {
 				log.Println("failed to add key in redis", err)
@@ -75,8 +75,8 @@ func (fsi FavoriteServiceImpl) CheckFavoriteByBothId(fromUserId, toVideoId int64
 	// <fromUserId, toVideoId>
 	fromUserIdStr := strconv.FormatInt(fromUserId, 10)
 	toVideoIdStr := strconv.FormatInt(toVideoId, 10)
-	keyStr := "favorite" + "-" + "fromUserId" + "-" + fromUserIdStr
-	valueStr := "favorite" + "-" + "toVideoId" + "-" + toVideoIdStr
+	keyStr := "favorite" + util.RedisSplit + "fromUserId" + util.RedisSplit + fromUserIdStr
+	valueStr := "favorite" + util.RedisSplit + "toVideoId" + util.RedisSplit + toVideoIdStr
 	n, err := redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
 	// 存在这个键
 	if n > 0 {
@@ -114,7 +114,7 @@ func (fsi FavoriteServiceImpl) CheckFavoriteByBothId(fromUserId, toVideoId int64
 		// 一个一个添加，如果又一个添加失败，则删除键（为了保证redis内容和数据库同步，一旦添加失败就不同步了）
 		for _, videoId := range videoIds {
 			videoIdStr := strconv.FormatInt(videoId, 10)
-			vStr := "favorite" + "-" + "toVideoId" + "-" + videoIdStr
+			vStr := "favorite" + util.RedisSplit + "toVideoId" + util.RedisSplit + videoIdStr
 			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
 			if err != nil {
 				log.Println("failed to add key in redis", err)
@@ -141,8 +141,8 @@ func (fsi FavoriteServiceImpl) AddFavoriteByBothId(fromUserId, toVideoId int64) 
 	// <fromUserId, toVideoId>
 	fromUserIdStr := strconv.FormatInt(fromUserId, 10)
 	toVideoIdStr := strconv.FormatInt(toVideoId, 10)
-	keyStr := "favorite" + "-" + "fromUserId" + "-" + fromUserIdStr
-	valueStr := "favorite" + "-" + "toVideoId" + "-" + toVideoIdStr
+	keyStr := "favorite" + util.RedisSplit + "fromUserId" + util.RedisSplit + fromUserIdStr
+	valueStr := "favorite" + util.RedisSplit + "toVideoId" + util.RedisSplit + toVideoIdStr
 	n, err := redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
 	// 存在这个键
 	if n > 0 {
@@ -156,7 +156,7 @@ func (fsi FavoriteServiceImpl) AddFavoriteByBothId(fromUserId, toVideoId int64) 
 			log.Println("failed to add key in redis", err)
 			return err
 		}
-		rabbitmq.Favoritemq.Produce(util.RedisLikeType, fromUserIdStr, toVideoIdStr)
+		rabbitmq.Favoritemq.Produce(util.MQLikeType, fromUserIdStr, toVideoIdStr)
 	} else { // 不存在这个键
 		_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, util.RedisDefaultValue).Result()
 		if err != nil {
@@ -180,7 +180,7 @@ func (fsi FavoriteServiceImpl) AddFavoriteByBothId(fromUserId, toVideoId int64) 
 		// 一个一个添加，如果又一个添加失败，则删除键（为了保证redis内容和数据库同步，一旦添加失败就不同步了）
 		for _, videoId := range videoIds {
 			videoIdStr := strconv.FormatInt(videoId, 10)
-			vStr := "favorite" + "-" + "toVideoId" + "-" + videoIdStr
+			vStr := "favorite" + util.RedisSplit + "toVideoId" + util.RedisSplit + videoIdStr
 			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
 			if err != nil {
 				log.Println("failed to add key in redis", err)
@@ -194,7 +194,7 @@ func (fsi FavoriteServiceImpl) AddFavoriteByBothId(fromUserId, toVideoId int64) 
 			redis.RedisCli.Del(redis.Ctx, keyStr)
 			return err
 		}
-		rabbitmq.Favoritemq.Produce(util.RedisLikeType, fromUserIdStr, toVideoIdStr)
+		rabbitmq.Favoritemq.Produce(util.MQLikeType, fromUserIdStr, toVideoIdStr)
 	}
 
 	// <toVideoId, fromUserId>
@@ -235,7 +235,7 @@ func (fsi FavoriteServiceImpl) AddFavoriteByBothId(fromUserId, toVideoId int64) 
 		// 一个一个添加，如果又一个添加失败，则删除键（为了保证redis内容和数据库同步，一旦添加失败就不同步了）
 		for _, userId := range userIds {
 			userIdStr := strconv.FormatInt(userId, 10)
-			vStr := "favorite" + "-" + "fromUserId" + "-" + userIdStr
+			vStr := "favorite" + util.RedisSplit + "fromUserId" + util.RedisSplit + userIdStr
 			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
 			if err != nil {
 				log.Println("failed to add key in redis", err)
@@ -258,8 +258,8 @@ func (fsi FavoriteServiceImpl) DeleteFavoriteByBothId(fromUserId, toVideoId int6
 	// <fromUserId, toVideoId>
 	fromUserIdStr := strconv.FormatInt(fromUserId, 10)
 	toVideoIdStr := strconv.FormatInt(toVideoId, 10)
-	keyStr := "favorite" + "-" + "fromUserId" + "-" + fromUserIdStr
-	valueStr := "favorite" + "-" + "toVideoId" + "-" + toVideoIdStr
+	keyStr := "favorite" + util.RedisSplit + "fromUserId" + util.RedisSplit + fromUserIdStr
+	valueStr := "favorite" + util.RedisSplit + "toVideoId" + util.RedisSplit + toVideoIdStr
 	n, err := redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
 	// 存在这个键
 	if n > 0 {
@@ -273,7 +273,7 @@ func (fsi FavoriteServiceImpl) DeleteFavoriteByBothId(fromUserId, toVideoId int6
 			log.Println("failed to remove key in redis", err)
 			return err
 		}
-		rabbitmq.Favoritemq.Produce(util.RedisDisLikeType, fromUserIdStr, toVideoIdStr)
+		rabbitmq.Favoritemq.Produce(util.MQDisLikeType, fromUserIdStr, toVideoIdStr)
 	} else { // 不存在这个键
 		_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, util.RedisDefaultValue).Result()
 		if err != nil {
@@ -297,7 +297,7 @@ func (fsi FavoriteServiceImpl) DeleteFavoriteByBothId(fromUserId, toVideoId int6
 		// 一个一个添加，如果又一个添加失败，则删除键（为了保证redis内容和数据库同步，一旦添加失败就不同步了）
 		for _, videoId := range videoIds {
 			videoIdStr := strconv.FormatInt(videoId, 10)
-			vStr := "favorite" + "-" + "toVideoId" + "-" + videoIdStr
+			vStr := "favorite" + util.RedisSplit + "toVideoId" + util.RedisSplit + videoIdStr
 			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
 			if err != nil {
 				log.Println("failed to add key in redis", err)
@@ -311,7 +311,7 @@ func (fsi FavoriteServiceImpl) DeleteFavoriteByBothId(fromUserId, toVideoId int6
 			redis.RedisCli.Del(redis.Ctx, keyStr)
 			return err
 		}
-		rabbitmq.Favoritemq.Produce(util.RedisDisLikeType, fromUserIdStr, toVideoIdStr)
+		rabbitmq.Favoritemq.Produce(util.MQDisLikeType, fromUserIdStr, toVideoIdStr)
 	}
 
 	// <toVideoId, fromUserId>
@@ -352,7 +352,7 @@ func (fsi FavoriteServiceImpl) DeleteFavoriteByBothId(fromUserId, toVideoId int6
 		// 一个一个添加，如果又一个添加失败，则删除键（为了保证redis内容和数据库同步，一旦添加失败就不同步了）
 		for _, userId := range userIds {
 			userIdStr := strconv.FormatInt(userId, 10)
-			vStr := "favorite" + "-" + "fromUserId" + "-" + userIdStr
+			vStr := "favorite" + util.RedisSplit + "fromUserId" + util.RedisSplit + userIdStr
 			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
 			if err != nil {
 				log.Println("failed to add key in redis", err)
@@ -374,7 +374,7 @@ func (fsi FavoriteServiceImpl) FindFavoriteVideoIdsByFromUserId(fromUserId int64
 	// <fromUserId, toVideoId>
 	videoIds := make([]int64, 0)
 	fromUserIdStr := strconv.FormatInt(fromUserId, 10)
-	keyStr := "favorite" + "-" + "fromUserId" + "-" + fromUserIdStr
+	keyStr := "favorite" + util.RedisSplit + "fromUserId" + util.RedisSplit + fromUserIdStr
 	n, err := redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
 	// 存在这个键
 	if n > 0 {
@@ -393,7 +393,7 @@ func (fsi FavoriteServiceImpl) FindFavoriteVideoIdsByFromUserId(fromUserId int64
 			if vStr == util.RedisDefaultValue {
 				continue
 			}
-			videoId, _ := strconv.ParseInt(strings.Split(vStr, "-")[2], 10, 64)
+			videoId, _ := strconv.ParseInt(strings.Split(vStr, util.RedisSplit)[2], 10, 64)
 			videoIds = append(videoIds, videoId)
 		}
 		return videoIds, nil
@@ -420,7 +420,7 @@ func (fsi FavoriteServiceImpl) FindFavoriteVideoIdsByFromUserId(fromUserId int64
 		// 一个一个添加，如果又一个添加失败，则删除键（为了保证redis内容和数据库同步，一旦添加失败就不同步了）
 		for _, videoIdDao := range videoIdsDao {
 			videoIdStr := strconv.FormatInt(videoIdDao, 10)
-			vStr := "favorite" + "-" + "toVideoId" + "-" + videoIdStr
+			vStr := "favorite" + util.RedisSplit + "toVideoId" + util.RedisSplit + videoIdStr
 			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
 			if err != nil {
 				log.Println("failed to add key in redis", err)

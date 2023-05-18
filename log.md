@@ -114,7 +114,7 @@ service层使用Redis保存热键，使用RabbitMQ
 - 初步学习redis ☑️
 - 初步学习rabbitmq ☑️
 - 编写初始化redis代码 ☑️
-- 编写初始化rabbitmq代码 
+- 编写初始化rabbitmq代码 ☑️
 - 实现favorite模块 ☑️
 - - favorite action ☑️
 - - - 实现逻辑 ☑️
@@ -123,6 +123,15 @@ service层使用Redis保存热键，使用RabbitMQ
 - - - 实现逻辑 ☑️
 - - - 测试逻辑 ☑️
 - 将favorite之前写的代码改成redis ☑️
+- 实现comment模块
+- - comment action
+- - - 初始化comment mq ☑️
+- - - 用redis改写comment service ☑️
+- - - 实现逻辑 ☑️
+- - - 测试逻辑
+- - comment list
+- - - 实现逻辑
+- - - 测试逻辑
 
 ## User模块
 
@@ -143,9 +152,9 @@ eg. "favorite-fromUserId-15"
 注意键名一般和数据库字段有关，但是用驼峰命名法，即和程序内部的名字同步（而不是和数据库字段同步）
 
 对于service和dao每个函数的命名，最好都要加上模块名以标识，每个模块的service不可调用别的模块service，
-每个模块的dao不可调用别的模块的dao，对于命名
+每个模块的dao不可调用别的模块的dao，(这样规定不知道好不好，可能没有发挥多态的性质）对于命名
 
-应当以："动作" + "模块名" + "动作导致的对象" + "By" + "动作借助的对象" （驼峰）(如果"动作导致的对象"是所有字段，则"动作导致的对象"可省略)
+应当以："动作" + "模块名" + "动作导致的对象" + "By" + "动作借助的对象" (如果"动作借助的对象"是所有字段，则用all代替）（驼峰）(如果"动作导致的对象"是所有字段，则"动作导致的对象"可省略)
 
 eg Find Favorite VideoIds By FromUserId
 
@@ -208,6 +217,10 @@ omitempty
 
 goroutine出错怎么处理
 
+golang什么内置函数会返回error类型，以及自己写函数什么时候应该返回error类型
+
+redis是否需要刷新过期时间
+
 ## 项目问题
 
 上传的视频中title不能有空格
@@ -221,9 +234,13 @@ favoriteService又大量重复代码，是否可合并
 
 消息队列在消费时，对数据库进行操作，是否要增加错误重试机制
 
-没有对redis是否存储成功进行测试
+// 没有对redis是否存储成功进行测试
 
 哪些代码应该写在controller层，哪些写在service层
+
+删除评论操作是否又必要用redis和mq，因为删除评论是频率很低的操作
+
+redis会不会超出存储大小
 
 ## 参考资料
 

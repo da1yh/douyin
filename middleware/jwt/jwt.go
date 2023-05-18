@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"douyin/config"
+	"douyin/util"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"log"
@@ -99,7 +100,7 @@ func AuthVisitor() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.Query("token")
 		if len(tokenString) == 0 {
-			c.Set("id", -1)
+			c.Set("id", util.NotExistId)
 			c.Next()
 			return
 		}

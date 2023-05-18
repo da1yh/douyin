@@ -2,6 +2,7 @@ package rabbitmq
 
 import (
 	"douyin/dao"
+	"douyin/util"
 	"testing"
 	"time"
 )
@@ -12,11 +13,11 @@ func TestRmq(t *testing.T) {
 	forever := make(chan struct{})
 	InitFavoriteMQ()
 	time.Sleep(3 * time.Second)
-	Favoritemq.Produce("like", "4", "2")
-	Favoritemq.Produce("like", "14", "2")
-	Favoritemq.Produce("like", "4", "3")
-	Favoritemq.Produce("unlike", "4", "2")
-	Favoritemq.Produce("unlike", "4", "3")
+	Favoritemq.Produce(util.MQLikeType, "4", "2")
+	Favoritemq.Produce(util.MQLikeType, "14", "2")
+	Favoritemq.Produce(util.MQLikeType, "4", "3")
+	Favoritemq.Produce(util.MQDisLikeType, "4", "2")
+	Favoritemq.Produce(util.MQDisLikeType, "4", "3")
 	<-forever
 }
 

@@ -46,7 +46,7 @@ func (mq FavoriteMQ) Produce(tp, fromUserId, toVideoId string) {
 		false,      // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(tp + "-" + fromUserId + "-" + toVideoId),
+			Body:        []byte(tp + util.MQSplit + fromUserId + util.MQSplit + toVideoId),
 		})
 	failOnError(err, "failed to publish a message")
 }
@@ -78,12 +78,12 @@ func (mq FavoriteMQ) Consume() {
 
 	go func() {
 		for d := range msgs {
-			arr := strings.Split(string(d.Body), "-")
+			arr := strings.Split(string(d.Body), util.MQSplit)
 			tp, fromUserIdStr, toVideoIdStr := arr[0], arr[1], arr[2]
 			fromUserId, _ := strconv.ParseInt(fromUserIdStr, 10, 64)
 			toVideoId, _ := strconv.ParseInt(toVideoIdStr, 10, 64)
 			res, _ := dao.CheckFavoriteByBothId(fromUserId, toVideoId)
-			if tp == util.RedisLikeType {
+			if tp == util.MQLikeType {
 				if !res {
 					err := dao.AddFavoriteByBothId(fromUserId, toVideoId)
 					if err != nil {
