@@ -30,7 +30,7 @@ func (csi CommentServiceImpl) CountCommentsByToVideoId(toVideoId int64) (int64, 
 			log.Println("failed to count the number of key about comment in redis", err)
 			return 0, err
 		}
-		return cnt, nil
+		return cnt - 1, nil
 	} else {
 		_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, util.RedisDefaultValue).Result()
 		if err != nil {
@@ -64,7 +64,7 @@ func (csi CommentServiceImpl) CountCommentsByToVideoId(toVideoId int64) (int64, 
 			log.Println("failed to count the number of comments of the video in redis", err)
 			return 0, err
 		}
-		return cnt, nil
+		return cnt - 1, nil
 	}
 }
 

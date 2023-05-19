@@ -48,7 +48,7 @@ func DeleteCommentByAll(fromUserId, toVideoId int64, content string, createDate 
 }
 
 func DeleteCommentById(id int64) error {
-	if err := Db.Where("id=?", id).Delete(Comment{}).Error; err != nil {
+	if err := Db.Model(Comment{}).Where("id=?", id).Delete(Comment{}).Error; err != nil {
 		return err
 	}
 	return nil
