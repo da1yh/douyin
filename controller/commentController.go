@@ -4,8 +4,10 @@ import (
 	"douyin/service"
 	"douyin/util"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -89,10 +91,54 @@ func CommentAction(c *gin.Context) {
 }
 
 func CommentList(c *gin.Context) {
+	myId := c.GetInt64("id")
+	toVideoIdStr := c.Query("video_id")
+	toVideo, _ := strconv.ParseInt(toVideoIdStr, 10, 64)
+	csi := service.CommentServiceImpl{}
+	ids, err := csi.FindCommentIdsByToVideoId(toVideo)
+	if err != nil {
+		c.JSON(http.StatusOK, Response{
+			StatusCode: 1, StatusMsg: "failed to get comments' id of the video",
+		})
+	}
+	commentList := GetCommentListByIds(ids, myId)
 	c.JSON(http.StatusOK, CommentListResp{
 		Response: Response{
-			StatusCode: 0,
+			StatusCode: 0, StatusMsg: "get comments of the video successfully",
 		},
-		CommentList: DemoComment,
+		CommentList: commentList,
 	})
+}
+
+func GetCommentListByIds(ids []int64, myId int64) []Comment {
+	commentList := make([]Comment, 0)
+	var wg sync.WaitGroup
+	wg.Add(len(ids))
+	for _, id := range ids {
+		go GetCommentById(id, &commentList, &wg, myId)
+	}
+	wg.Wait()
+	return commentList
+}
+
+func GetCommentById(id int64, commentList *[]Comment, wg *sync.WaitGroup, myId int64) {
+	defer wg.Done()
+	csi := service.CommentServiceImpl{}
+	comment := Comment{}
+	comment.Id = id
+	commentDao, err := csi.FindCommentById(id)
+	if err != nil {
+		log.Println("failed to get comment info by id", err)
+		return
+	}
+	comment.Content = commentDao.Content
+	comment.CreateDate = commentDao.CreateDate.Format(util.TimeFormat)
+	userId := commentDao.FromUserId
+	userResp, err := GetUserRespByBothId(myId, userId)
+	if err != nil {
+		log.Println("failed to get user response", err)
+		return
+	}
+	comment.User = userResp
+	*commentList = append(*commentList, comment)
 }

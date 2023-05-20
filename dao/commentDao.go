@@ -72,3 +72,12 @@ func FindCommentToVideoIdById(id int64) (int64, error) {
 	}
 	return toVideoId, nil
 }
+
+func FindCommentById(id int64) (Comment, error) {
+	comment := Comment{}
+	if err := Db.Model(Comment{}).Where("id=?", id).Find(&comment).Error; err != nil {
+		log.Println(err)
+		return comment, err
+	}
+	return comment, nil
+}

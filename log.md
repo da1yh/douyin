@@ -128,9 +128,9 @@ service层使用Redis保存热键，使用RabbitMQ
 - - - 初始化comment mq ☑️
 - - - 用redis改写comment service ☑️
 - - - 实现逻辑 ☑️
-- - - 测试逻辑
+- - - 测试逻辑 ☑️
 - - comment list
-- - - 实现逻辑
+- - - 实现逻辑 ☑️
 - - - 测试逻辑
 
 ## User模块

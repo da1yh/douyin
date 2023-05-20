@@ -14,4 +14,10 @@ type CommentService interface {
 
 	// DeleteCommentById 通过评论id删除评论，返回该评论
 	DeleteCommentById(id int64) (dao.Comment, error)
+
+	// FindCommentIdsByToVideoId 通过toVideoId返回该视频的评论id列表
+	FindCommentIdsByToVideoId(toVideoId int64) ([]int64, error)
+
+	// FindCommentById 通过id找到comment
+	FindCommentById(id int64) (dao.Comment, error)
 }

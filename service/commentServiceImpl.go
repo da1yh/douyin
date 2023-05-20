@@ -6,6 +6,7 @@ import (
 	"douyin/middleware/redis"
 	"douyin/util"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -220,4 +221,75 @@ func (csi CommentServiceImpl) DeleteCommentById(id int64) error {
 		rabbitmq.Commentmq.Produce(util.MQCancelCommentType, util.MQEmptyValue, util.MQEmptyValue, util.MQEmptyValue, util.MQEmptyValue, strconv.FormatInt(id, 10))
 	}
 	return nil
+}
+
+// FindCommentIdsByToVideoId 先查redis，如果有则直接返回
+// 如果没有则从数据库中加载，用协程添加进redis（设置默认值，设置过期时间，一一添加）（此处不添加<id, toVideoId>数据结构
+// 最后要按id排序
+func (csi CommentServiceImpl) FindCommentIdsByToVideoId(toVideoId int64) ([]int64, error) {
+	keyStr := "comment" + util.RedisSplit + "toVideoId" + util.RedisSplit + strconv.FormatInt(toVideoId, 10)
+	n, err := redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
+	if err != nil {
+		log.Println("failed to check key about comment in redis")
+		return nil, err
+	}
+	ids := make([]int64, 0)
+	if n > 0 { // 存在这个键，直接返回
+		vsStr, err := redis.RedisCli.SMembers(redis.Ctx, keyStr).Result()
+		if err != nil {
+			log.Println("failed to get values about comment in redis", err)
+			return nil, err
+		}
+		for _, vStr := range vsStr {
+			if vStr == util.RedisDefaultValue {
+				continue
+			}
+			idStr := strings.Split(vStr, util.RedisSplit)[2]
+			id, _ := strconv.ParseInt(idStr, 10, 64)
+			ids = append(ids, id)
+		}
+	} else { // 不存在这个键
+		ids, err = dao.FindCommentIdsByToVideoId(toVideoId)
+		if err != nil {
+			log.Println("failed to find comments' id of the video", err)
+			return nil, err
+		}
+		go func() {
+			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, util.RedisDefaultValue).Result()
+			if err != nil {
+				log.Println("failed to add value about comment in redis", err)
+				redis.RedisCli.Del(redis.Ctx, keyStr)
+				return
+			}
+			_, err = redis.RedisCli.Expire(redis.Ctx, keyStr, util.RandomDuration()).Result()
+			if err != nil {
+				log.Println("failed to set expiration time for key about comment in redis", err)
+				redis.RedisCli.Del(redis.Ctx, keyStr)
+				return
+			}
+			for _, id := range ids {
+				tmpValueStr := "comment" + util.RedisSplit + "id" + util.RedisSplit + strconv.FormatInt(id, 10)
+				_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, tmpValueStr).Result()
+				if err != nil {
+					log.Println("failed to add value about comment in redis", err)
+					redis.RedisCli.Del(redis.Ctx, keyStr)
+					return
+				}
+			}
+		}()
+	}
+
+	// 对ids排序
+	sort.Slice(ids, func(i, j int) bool {
+		return ids[i] > ids[j]
+	})
+	return ids, nil
+}
+
+func (csi CommentServiceImpl) FindCommentById(id int64) (dao.Comment, error) {
+	comment, err := dao.FindCommentById(id)
+	if err != nil {
+		return comment, err
+	}
+	return comment, nil
 }
