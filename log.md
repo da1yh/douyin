@@ -123,15 +123,27 @@ service层使用Redis保存热键，使用RabbitMQ
 - - - 实现逻辑 ☑️
 - - - 测试逻辑 ☑️
 - 将favorite之前写的代码改成redis ☑️
-- 实现comment模块
-- - comment action
+- 实现comment模块 ☑️
+- - comment action ☑️
 - - - 初始化comment mq ☑️
 - - - 用redis改写comment service ☑️
 - - - 实现逻辑 ☑️
 - - - 测试逻辑 ☑️
-- - comment list
+- - comment list ☑️
 - - - 实现逻辑 ☑️
-- - - 测试逻辑
+- - - 测试逻辑 ☑️
+- 实现relation模块
+- - 初始化relation mq ☑️
+- - 用redis改写relation service ☑️
+- - relation action
+- - - 实现逻辑 ☑️
+- - follow list
+- - - 实现逻辑
+- - follower list
+- - - 实现逻辑
+- - friend list
+- - - 实现逻辑
+- - 测试relation
 
 ## User模块
 
@@ -220,6 +232,8 @@ goroutine出错怎么处理
 golang什么内置函数会返回error类型，以及自己写函数什么时候应该返回error类型
 
 redis是否需要刷新过期时间
+
+go多协程的关系应该怎么组织才不会出错
 
 ## 项目问题
 

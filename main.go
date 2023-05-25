@@ -18,6 +18,7 @@ func main() {
 	rabbitmq.InitRabbitMQ()
 	rabbitmq.InitFavoriteMQ()
 	rabbitmq.InitCommentMQ()
+	rabbitmq.InitRelationMQ()
 	r := gin.Default()
 	initRouter(r)
 	time.Sleep(3 * time.Second)
