@@ -29,7 +29,7 @@ func initRouter(r *gin.Engine) {
 
 	//social api
 	apiRouter.POST("/relation/action/", jwt.AuthPost(), controller.RelationAction)
-	apiRouter.GET("/relation/follow/list/", controller.RelationFollowList)
+	apiRouter.GET("/relation/follow/list/", jwt.Auth(), controller.RelationFollowList)
 	apiRouter.GET("/relation/follower/list/", controller.RelationFollowerList)
 	apiRouter.GET("/relation/friend/list/", controller.RelationFriendList)
 	apiRouter.GET("/message/chat/", controller.MessageChat)

@@ -135,15 +135,11 @@ service层使用Redis保存热键，使用RabbitMQ
 - 实现relation模块
 - - 初始化relation mq ☑️
 - - 用redis改写relation service ☑️
-- - relation action
-- - - 实现逻辑 ☑️
-- - follow list
-- - - 实现逻辑
-- - follower list
-- - - 实现逻辑
-- - friend list
-- - - 实现逻辑
-- - 测试relation
+- - relation action逻辑 ☑️
+- - follow list逻辑 ☑️
+- - follower list逻辑 ☑️
+- - friend list逻辑
+- - 测试relation 
 
 ## User模块
 

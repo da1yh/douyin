@@ -83,30 +83,6 @@ func PublishAction(c *gin.Context) {
 	})
 }
 
-// GetUserRespByBothId 通过当前用户的id和待查询用户的id，获得UserResponse，游客id为myId=-1
-func GetUserRespByBothId(myId, yourId int64) (User, error) {
-	rsi := service.RelationServiceImpl{}
-	usi := service.UserServiceImpl{}
-	var followCount, followerCount int64
-	var isFollow bool
-	followCount, _ = rsi.CountRelationsByFromUserId(yourId)
-	followerCount, _ = rsi.CountRelationsByToUserId(yourId)
-	if myId == -1 {
-		isFollow = false
-	} else {
-		isFollow, _ = rsi.CheckRelationByBothId(myId, yourId)
-	}
-	usr, _ := usi.FindUserById(yourId)
-	user := User{
-		Id:            yourId,
-		Name:          usr.Name,
-		FollowCount:   followCount,
-		FollowerCount: followerCount,
-		IsFollow:      isFollow,
-	}
-	return user, nil
-}
-
 // PublishList 根据id，查询数据库，获得video
 func PublishList(c *gin.Context) {
 	userId, _ := strconv.ParseInt(c.Query("user_id"), 10, 64)

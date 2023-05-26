@@ -15,4 +15,10 @@ type RelationService interface {
 
 	// DeleteRelationByBothId 通过双方的id，删除关注关系
 	DeleteRelationByBothId(fromUserId, toUserId int64) error
+
+	// FindRelationToUserIdsByFromUserId 找到该用户关注的人的id列表
+	FindRelationToUserIdsByFromUserId(fromUserId int64) ([]int64, error)
+
+	// FindRelationFromUserIdsByToUserId 找到该用户的粉丝id列表
+	FindRelationFromUserIdsByToUserId(toUserId int64) ([]int64, error)
 }

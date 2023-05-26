@@ -2,6 +2,7 @@ package controller
 
 import (
 	"douyin/config"
+	"douyin/service"
 	"github.com/gavv/httpexpect/v2"
 	"net/http"
 	"testing"
@@ -88,4 +89,28 @@ func newExpect(t *testing.T) *httpexpect.Expect {
 			httpexpect.NewDebugPrinter(t, true),
 		},
 	})
+}
+
+// GetUserRespByBothId 通过当前用户的id和待查询用户的id，获得UserResponse，游客id为myId=-1
+func GetUserRespByBothId(myId, yourId int64) (User, error) {
+	rsi := service.RelationServiceImpl{}
+	usi := service.UserServiceImpl{}
+	var followCount, followerCount int64
+	var isFollow bool
+	followCount, _ = rsi.CountRelationsByFromUserId(yourId)
+	followerCount, _ = rsi.CountRelationsByToUserId(yourId)
+	if myId == -1 {
+		isFollow = false
+	} else {
+		isFollow, _ = rsi.CheckRelationByBothId(myId, yourId)
+	}
+	usr, _ := usi.FindUserById(yourId)
+	user := User{
+		Id:            yourId,
+		Name:          usr.Name,
+		FollowCount:   followCount,
+		FollowerCount: followerCount,
+		IsFollow:      isFollow,
+	}
+	return user, nil
 }
