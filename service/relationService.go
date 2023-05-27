@@ -21,4 +21,7 @@ type RelationService interface {
 
 	// FindRelationFromUserIdsByToUserId 找到该用户的粉丝id列表
 	FindRelationFromUserIdsByToUserId(toUserId int64) ([]int64, error)
+
+	// FindRelationFriendIdsByFromUserId 找到该用户的朋友id列表
+	FindRelationFriendIdsByFromUserId(fromUserId int64) ([]int64, error)
 }

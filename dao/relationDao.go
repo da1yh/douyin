@@ -1,6 +1,9 @@
 package dao
 
-import "log"
+import (
+	"gorm.io/gorm"
+	"log"
+)
 
 type Relation struct {
 	Id         int64 `gorm:"column:id"`
@@ -36,9 +39,11 @@ func CountRelationsByToUserId(id int64) (int64, error) {
 func CheckRelationByBothId(fromUserId, toUserId int64) (bool, error) {
 	relation := Relation{}
 	var count int64
-	if err := Db.Where("from_user_id=? AND to_user_id=?", fromUserId, toUserId).First(&relation).Count(&count); err != nil {
-		log.Println("error: ", err)
-		return count > 0, err.Error
+	if err := Db.Where("from_user_id=? AND to_user_id=?", fromUserId, toUserId).First(&relation).Count(&count).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
 	}
 	return count > 0, nil
 }

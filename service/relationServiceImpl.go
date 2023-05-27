@@ -315,14 +315,33 @@ func (rsi RelationServiceImpl) AddRelationByBothId(fromUserId, toUserId int64) e
 	}
 
 	// <from_user_id, to_user_id> 表示某人的朋友
-	res, err := dao.CheckRelationByBothId(toUserId, fromUserId)
+	keyStr = "relation" + util.RedisSplit + "fromUserId" + util.RedisSplit + strconv.FormatInt(toUserId, 10)
+	n, err = redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
 	if err != nil {
-		log.Println("failed to check relation in database", err)
+		log.Println(err)
 		return err
 	}
-	if !res {
-		return nil
+	if n > 0 {
+		vStr := "relation" + util.RedisSplit + "toUserId" + util.RedisSplit + strconv.FormatInt(fromUserId, 10)
+		exist, err := redis.RedisCli.SIsMember(redis.Ctx, keyStr, vStr).Result()
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		if !exist {
+			return nil
+		}
+	} else {
+		res, err := dao.CheckRelationByBothId(toUserId, fromUserId)
+		if err != nil {
+			log.Println("failed to check relation in database", err)
+			return err
+		}
+		if !res {
+			return nil
+		}
 	}
+
 	keyStr = "relationFriend" + util.RedisSplit + "fromUserId" + util.RedisSplit + fromUserIdStr
 	valueStr = "relationFriend" + util.RedisSplit + "toUserId" + util.RedisSplit + toUserIdStr
 	n, err = redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
@@ -561,14 +580,33 @@ func (rsi RelationServiceImpl) DeleteRelationByBothId(fromUserId, toUserId int64
 	}
 
 	// <from_user_id, to_user_id> 表示某人的朋友
-	res, err := dao.CheckRelationByBothId(toUserId, fromUserId)
+	keyStr = "relation" + util.RedisSplit + "fromUserId" + util.RedisSplit + strconv.FormatInt(toUserId, 10)
+	n, err = redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
 	if err != nil {
-		log.Println("failed to check relation in database", err)
+		log.Println(err)
 		return err
 	}
-	if !res {
-		return nil
+	if n > 0 {
+		vStr := "relation" + util.RedisSplit + "toUserId" + util.RedisSplit + strconv.FormatInt(fromUserId, 10)
+		exist, err := redis.RedisCli.SIsMember(redis.Ctx, keyStr, vStr).Result()
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		if !exist {
+			return nil
+		}
+	} else {
+		res, err := dao.CheckRelationByBothId(toUserId, fromUserId)
+		if err != nil {
+			log.Println("failed to check relation in database", err)
+			return err
+		}
+		if !res {
+			return nil
+		}
 	}
+
 	keyStr = "relationFriend" + util.RedisSplit + "fromUserId" + util.RedisSplit + fromUserIdStr
 	valueStr = "relationFriend" + util.RedisSplit + "toUserId" + util.RedisSplit + toUserIdStr
 	n, err = redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
@@ -788,6 +826,68 @@ func (rsi RelationServiceImpl) FindRelationFromUserIdsByToUserId(toUserId int64)
 		}
 		for _, id := range ids {
 			vStr := "relation" + util.RedisSplit + "fromUserId" + util.RedisSplit + strconv.FormatInt(id, 10)
+			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
+			if err != nil {
+				log.Println(err)
+				redis.RedisCli.Del(redis.Ctx, keyStr)
+				return nil, err
+			}
+		}
+	}
+	return ids, nil
+}
+
+func (rsi RelationServiceImpl) FindRelationFriendIdsByFromUserId(fromUserId int64) ([]int64, error) {
+	keyStr := "relationFriend" + util.RedisSplit + "fromUserId" + util.RedisSplit + strconv.FormatInt(fromUserId, 10)
+	n, err := redis.RedisCli.Exists(redis.Ctx, keyStr).Result()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	ids := make([]int64, 0)
+	if n > 0 {
+		_, err = redis.RedisCli.Expire(redis.Ctx, keyStr, util.RandomDuration()).Result()
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		vsStr, err := redis.RedisCli.SMembers(redis.Ctx, keyStr).Result()
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		for _, vStr := range vsStr {
+			if vStr == util.RedisDefaultValue {
+				continue
+			}
+			toUserIdStr := strings.Split(vStr, util.RedisSplit)[2]
+			toUserId, err := strconv.ParseInt(toUserIdStr, 10, 64)
+			if err != nil {
+				log.Println(err)
+				return nil, err
+			}
+			ids = append(ids, toUserId)
+		}
+	} else {
+		ids, err = dao.FindRelationFriendIdsByFromUserId(fromUserId)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, util.RedisDefaultValue).Result()
+		if err != nil {
+			log.Println(err)
+			redis.RedisCli.Del(redis.Ctx, keyStr)
+			return nil, err
+		}
+		_, err = redis.RedisCli.Expire(redis.Ctx, keyStr, util.RandomDuration()).Result()
+		if err != nil {
+			log.Println(err)
+			redis.RedisCli.Del(redis.Ctx, keyStr)
+			return nil, err
+		}
+		for _, id := range ids {
+			vStr := "relationFriend" + util.RedisSplit + "toUserId" + util.RedisSplit + strconv.FormatInt(id, 10)
 			_, err = redis.RedisCli.SAdd(redis.Ctx, keyStr, vStr).Result()
 			if err != nil {
 				log.Println(err)

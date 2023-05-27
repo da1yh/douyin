@@ -114,3 +114,15 @@ func GetUserRespByBothId(myId, yourId int64) (User, error) {
 	}
 	return user, nil
 }
+
+// GetTokenByLogin make sure this user already registered
+func GetTokenByLogin(username, password string, e *httpexpect.Expect) string {
+	loginResp := e.POST("/douyin/user/login/").
+		WithQuery("username", username).WithQuery("password", password).
+		Expect().Status(http.StatusOK).JSON().Object()
+	loginResp.Value("status_code").Number().IsEqual(0)
+	loginResp.Value("user_id").Number().Gt(0)
+	loginResp.Value("token").String().Length().Gt(0)
+	token := loginResp.Value("token").String().Raw()
+	return token
+}
