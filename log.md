@@ -139,7 +139,12 @@ service层使用Redis保存热键，使用RabbitMQ
 - - follow list逻辑 ☑️
 - - follower list逻辑 ☑️
 - - friend list逻辑
-- - 测试relation 
+- - 测试relation ☑️
+- 实现message模块
+- - 初始化message mq (好像不需要)
+- - message action实现逻辑 ☑️
+- - message chat实现逻辑
+- - 测试message
 
 ## User模块
 

@@ -32,7 +32,7 @@ func initRouter(r *gin.Engine) {
 	apiRouter.GET("/relation/follow/list/", jwt.Auth(), controller.RelationFollowList)
 	apiRouter.GET("/relation/follower/list/", jwt.Auth(), controller.RelationFollowerList)
 	apiRouter.GET("/relation/friend/list/", jwt.Auth(), controller.RelationFriendList)
-	apiRouter.GET("/message/chat/", controller.MessageChat)
-	apiRouter.POST("/message/action/", controller.MessageAction)
+	apiRouter.GET("/message/chat/", jwt.Auth(), controller.MessageChat)
+	apiRouter.POST("/message/action/", jwt.AuthPost(), controller.MessageAction)
 
 }
