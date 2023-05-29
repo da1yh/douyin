@@ -33,7 +33,7 @@ func AddMessageByAll(fromUserId, toUserId int64, content string, createTime time
 
 func FindMessageIdsByFromUserIdAndToUserId(fromUserId, toUserId int64) ([]int64, error) {
 	ids := make([]int64, 0)
-	if err := Db.Model(Relation{}).Where("from_user_id=? AND to_user_id=?", fromUserId, toUserId).Pluck("id", &ids).Error; err != nil {
+	if err := Db.Model(Message{}).Where("from_user_id=? AND to_user_id=?", fromUserId, toUserId).Pluck("id", &ids).Error; err != nil {
 		log.Println(err)
 		return ids, err
 	}

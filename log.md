@@ -143,8 +143,8 @@ service层使用Redis保存热键，使用RabbitMQ
 - 实现message模块
 - - 初始化message mq (好像不需要)
 - - message action实现逻辑 ☑️
-- - message chat实现逻辑
-- - 测试message
+- - message chat实现逻辑 ☑️
+- - 测试message ☑️
 
 ## User模块
 
@@ -281,6 +281,10 @@ https://github.com/jlaffaye/ftp
 kafka与rabbitmq
 
 https://www.cnblogs.com/xinliangcoder/p/15196078.html
+
+至此douyin项目可能要告一段落了
+
+2023.5.29
 
 
 
